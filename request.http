@@ -1,0 +1,134 @@
+### ─── AUTH ────────────────────────────────────────────────────────────────────
+
+### SIGNUP
+POST http://localhost:8080/auth/signup
+Content-Type: application/json
+
+{
+  "firstName": "souleima",
+  "lastName": "Doe",
+  "email": "souleima@gmail.com",
+  "password": "Password@123",
+  "phone": "0612345678"
+}
+
+###
+
+### LOGIN
+POST http://localhost:8080/auth/login
+Content-Type: application/json
+
+{
+  "email": "souleima@gmail.com",
+  "password": "Password@123"
+}
+
+###
+
+### LOGIN ADMIN
+POST http://localhost:8080/auth/login
+Content-Type: application/json
+
+{
+  "email": "leila@gmail.com",
+  "password": "123456"
+}
+
+###
+
+### FORGOT PASSWORD
+POST http://localhost:8080/auth/forgot-password
+Content-Type: application/json
+
+{
+  "email": "souleima@gmail.com"
+}
+
+###
+
+### RESET PASSWORD
+POST http://localhost:8080/auth/reset-password
+Content-Type: application/json
+
+{
+  "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6InNvdWxlaW1hQGdtYWlsLmNvbSIsImlhdCI6MTc3MzY3ODkwMiwiZXhwIjoxNzczNjgyNTAyfQ.68Tv0cTW1VTgNQ71bLgZBURTOYmR3qQPmfUhbEuVALA",
+  "password": "NewPassword@123"
+}
+
+###
+
+### CONFIRM EMAIL
+POST http://localhost:8080/auth/confirm-email
+Content-Type: application/json
+
+{
+  "token": "REPLACE_WITH_VERIFICATION_TOKEN"
+}
+
+###
+
+### RESEND CONFIRMATION (protected)
+POST http://localhost:8080/auth/resend-confirmation
+Content-Type: application/json
+Authorization: Bearer REPLACE_WITH_JWT_TOKEN
+
+###
+
+### GET CURRENT USER (protected)
+GET http://localhost:8080/auth/me
+Authorization: Bearer REPLACE_WITH_JWT_TOKEN
+
+###
+
+### ─── USERS (ADMIN ONLY) ────────────────────────────────────────────────────
+
+### GET ALL USERS
+GET http://localhost:8080/users
+Authorization: Bearer REPLACE_WITH_ADMIN_JWT_TOKEN
+
+###
+
+### GET USER BY ID
+GET http://localhost:8080/users/1
+Authorization: Bearer REPLACE_WITH_ADMIN_JWT_TOKEN
+
+###
+
+### CREATE USER
+POST http://localhost:8080/users
+Content-Type: application/json
+Authorization: Bearer REPLACE_WITH_ADMIN_JWT_TOKEN
+
+{
+  "firstName": "Jane",
+  "lastName": "Doe",
+  "email": "jane.doe@gmail.com",
+  "password": "Password@123",
+  "phone": "0612345679",
+  "role": "client"
+}
+
+###
+
+### UPDATE USER
+PATCH http://localhost:8080/users/1
+Content-Type: application/json
+Authorization: Bearer REPLACE_WITH_ADMIN_JWT_TOKEN
+
+{
+  "firstName": "Jane",
+  "lastName": "Smith",
+  "phone": "0698765432"
+}
+
+###
+
+### DELETE USER
+DELETE http://localhost:8080/users/1
+Authorization: Bearer REPLACE_WITH_ADMIN_JWT_TOKEN
+
+###
+
+### TOGGLE ACTIVE
+PATCH http://localhost:8080/users/1/toggle-active
+Authorization: Bearer REPLACE_WITH_ADMIN_JWT_TOKEN
