@@ -77,6 +77,7 @@ export class UserService {
         'phone',
         'role',
         'isActive',
+        'isActivated',
         'isEmailVerified',
         'createdAt',
       ],

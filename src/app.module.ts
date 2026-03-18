@@ -11,6 +11,9 @@ import { SeedingService } from './seed/seed.service';
 import { User } from './users/user/user.entity';
 import { UserModule } from './users/user/user.module';
 import { AuthModule } from './auth/auth.module';
+import { VehicleModule } from './vehicle/vehicle.module';
+import { Vehicle } from './vehicle/entities/vehicle.entity';
+import { VehiclePricing } from './vehicle/entities/vehicle-pricing.entity';
 
 const env = process.env.NODE_ENV || __DEV__;
 
@@ -19,7 +22,7 @@ const env = process.env.NODE_ENV || __DEV__;
     ScheduleModule.forRoot(),
     TypeOrmModule.forRoot({
       ...(databaseConfig as TypeOrmModuleOptions),
-      entities: [User],
+      entities: [User, Vehicle, VehiclePricing],
     }),
     ConfigModule.forRoot({
       isGlobal: true,
@@ -47,6 +50,7 @@ const env = process.env.NODE_ENV || __DEV__;
     }),
     UserModule,
     AuthModule,
+    VehicleModule,
   ],
   controllers: [AppController],
   providers: [AppService, SeedingService],

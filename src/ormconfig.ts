@@ -1,9 +1,11 @@
 import { DataSource, DataSourceOptions } from 'typeorm';
 import { databaseConfig } from './shared/config/database.config';
 import { User } from './users/user/user.entity';
+import { Vehicle } from './vehicle/entities/vehicle.entity';
+import { VehiclePricing } from './vehicle/entities/vehicle-pricing.entity';
 
 export const connectionSource = new DataSource({
   ...(databaseConfig as DataSourceOptions),
-  entities: [User],
+  entities: [User, Vehicle, VehiclePricing],
   migrations: ['src/migrations/*.ts'],
 });
