@@ -30,7 +30,7 @@ POST http://localhost:8080/auth/login
 Content-Type: application/json
 
 {
-  "email": "leila@gmail.com",
+  "email": "user@gmail.com",
   "password": "123456"
 }
 
@@ -132,3 +132,115 @@ Authorization: Bearer REPLACE_WITH_ADMIN_JWT_TOKEN
 ### TOGGLE ACTIVE
 PATCH http://localhost:8080/users/1/toggle-active
 Authorization: Bearer REPLACE_WITH_ADMIN_JWT_TOKEN
+
+### ─── VARIABLES ─────────────────────────────────────────────────────────────
+@baseUrl = http://localhost:8080
+@adminToken = REPLACE_WITH_ADMIN_JWT_TOKEN
+
+### ─── LOGIN ADMIN (récupère le token) ──────────────────────────────────────
+
+### LOGIN ADMIN
+POST {{baseUrl}}/auth/login
+Content-Type: application/json
+
+{
+  "email": "user@gmail.com",
+  "password": "123456"
+}
+
+### ─── VEHICLE PUBLIC ─────────────────────────────────────────────────────────
+
+### GET ALL AVAILABLE VEHICLES
+GET {{baseUrl}}/vehicles
+
+###
+
+### GET VEHICLE BY ID
+GET {{baseUrl}}/vehicles/1
+
+### ─── VEHICLE ADMIN ──────────────────────────────────────────────────────────
+
+### GET ALL VEHICLES (admin)
+GET http://localhost:8080/vehicles/admin/all
+Authorization: Bearer {{adminToken}}
+
+###
+
+### CREATE VEHICLE
+POST http://localhost:8080/vehicles
+Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjEsImlhdCI6MTc3Mzc5MDI2NiwiZXhwIjoxNzczNzkwMjY5fQ.2epS5Q7BZSipXG4PDmKKkCRSqlcII4Rz5ufKm79K38E
+{
+  "brand": "Toyota",
+  "model": "Corolla",
+  "year": 2022,
+  "basePricePerDay": 50,
+  "seats": 5,
+  "transmission": "manual",
+  "fuelType": "petrol",
+  "category": "economy",
+  "mileage": 15000,
+  "description": "Voiture économique et fiable",
+  "images": []
+}
+
+###
+
+### UPDATE VEHICLE
+PATCH {{baseUrl}}/vehicles/1
+Content-Type: application/json
+Authorization: Bearer {{adminToken}}
+
+{
+  "basePricePerDay": 60,
+  "mileage": 16000
+}
+
+###
+
+### TOGGLE AVAILABLE
+PATCH {{baseUrl}}/vehicles/1/toggle-available
+Authorization: Bearer {{adminToken}}
+
+###
+
+### DELETE VEHICLE
+DELETE {{baseUrl}}/vehicles/1
+Authorization: Bearer {{adminToken}}
+
+### ─── VEHICLE PRICING ─────────────────────────────────────────────────────────
+
+### GET ALL PRICINGS
+GET {{baseUrl}}/vehicles/1/pricing
+Authorization: Bearer {{adminToken}}
+
+###
+
+### CREATE PRICING RULE
+POST {{baseUrl}}/vehicles/1/pricing
+Content-Type: application/json
+Authorization: Bearer {{adminToken}}
+
+{
+  "label": "Vacances été 2026",
+  "startDate": "2026-07-01",
+  "endDate": "2026-08-31",
+  "pricePerDay": 80
+}
+
+###
+
+### UPDATE PRICING RULE
+PATCH {{baseUrl}}/vehicles/1/pricing/1
+Content-Type: application/json
+Authorization: Bearer {{adminToken}}
+
+{
+  "pricePerDay": 90
+}
+
+###
+
+### DELETE PRICING RULE
+DELETE {{baseUrl}}/vehicles/1/pricing/1
+Authorization: Bearer {{adminToken}}
