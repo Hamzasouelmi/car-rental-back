@@ -1,6 +1,7 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { EmailService } from 'src/email/email.service';
+import { Reservation } from 'src/reservation/reservation.entity';
 import { JwtTokenService } from 'src/shared/common/jwt-tokens/jwt-token.service';
 import { UserService } from 'src/users/user/user.service';
 
@@ -75,6 +76,41 @@ Si vous n'êtes pas à l'origine de cette demande, ignorez cet email.`;
     await this.emailService.sendMail({
       to: email,
       subject: 'Réinitialisation de votre mot de passe',
+      from: fromEmail,
+      text,
+    });
+  }
+
+  async sendReservationConfirmation(
+    email: string,
+    reservation: Reservation,
+  ): Promise<void> {
+    const frontUrl = this.configService.get<string>('FRONT_APP_URL');
+    const text = `Bonjour ${reservation.guestFirstName} ${reservation.guestLastName},
+
+Votre réservation a été confirmée avec succès.
+
+Détails de la réservation :
+- Véhicule : ${reservation.vehicle?.brand} ${reservation.vehicle?.model}
+- Date de début : ${new Date(reservation.startDate).toLocaleDateString('fr-FR')}
+- Date de fin : ${new Date(reservation.endDate).toLocaleDateString('fr-FR')}
+- Prix total (TND) : ${reservation.totalPriceTND} TND
+- Prix total (USD) : ${reservation.totalPriceUSD} USD
+- Prix total (EUR) : ${reservation.totalPriceEUR} EUR
+
+Pour suivre votre réservation : ${frontUrl}/reservation/${reservation.id}
+
+Cordialement,
+L'équipe RentAcar`;
+
+    const fromEmail =
+      this.configService.get<string>('EMAIL_FROM') ||
+      this.configService.get<string>('EMAIL_USER') ||
+      'no-reply@rentacar.dev';
+
+    await this.emailService.sendMail({
+      to: email,
+      subject: 'Confirmation de votre réservation - RentAcar',
       from: fromEmail,
       text,
     });

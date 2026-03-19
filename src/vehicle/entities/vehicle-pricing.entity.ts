@@ -23,8 +23,15 @@ export class VehiclePricing {
   @Column({ type: 'date' })
   endDate: Date;
 
+  // ─── PRIX ────────────────────────────────────────────────────────────────────
   @Column({ type: 'decimal', precision: 10, scale: 2 })
-  pricePerDay: number;
+  pricePerDayTND: number;
+
+  @Column({ type: 'decimal', precision: 10, scale: 2 })
+  pricePerDayUSD: number;
+
+  @Column({ type: 'decimal', precision: 10, scale: 2 })
+  pricePerDayEUR: number;
 
   @ManyToOne(() => Vehicle, (vehicle) => vehicle.pricings, {
     onDelete: 'CASCADE',

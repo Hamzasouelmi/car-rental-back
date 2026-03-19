@@ -14,6 +14,8 @@ import { AuthModule } from './auth/auth.module';
 import { VehicleModule } from './vehicle/vehicle.module';
 import { Vehicle } from './vehicle/entities/vehicle.entity';
 import { VehiclePricing } from './vehicle/entities/vehicle-pricing.entity';
+import { ReservationModule } from './reservation/reservation.module';
+import { Reservation } from './reservation/reservation.entity';
 
 const env = process.env.NODE_ENV || __DEV__;
 
@@ -22,7 +24,7 @@ const env = process.env.NODE_ENV || __DEV__;
     ScheduleModule.forRoot(),
     TypeOrmModule.forRoot({
       ...(databaseConfig as TypeOrmModuleOptions),
-      entities: [User, Vehicle, VehiclePricing],
+      entities: [User, Vehicle, VehiclePricing, Reservation],
     }),
     ConfigModule.forRoot({
       isGlobal: true,
@@ -51,6 +53,7 @@ const env = process.env.NODE_ENV || __DEV__;
     UserModule,
     AuthModule,
     VehicleModule,
+    ReservationModule,
   ],
   controllers: [AppController],
   providers: [AppService, SeedingService],
