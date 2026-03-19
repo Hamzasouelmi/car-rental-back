@@ -29,7 +29,15 @@ export class CreateVehicleDto {
 
   @IsNumber()
   @Min(0)
-  basePricePerDay: number;
+  pricePerDayTND: number;
+
+  @IsNumber()
+  @Min(0)
+  pricePerDayUSD: number;
+
+  @IsNumber()
+  @Min(0)
+  pricePerDayEUR: number;
 
   @IsInt()
   @Min(1)

@@ -118,11 +118,11 @@ export class VehicleService {
   }
 
   // ─── CALCULATE PRICE ──────────────────────────────────────────────────────────
-
   async calculatePrice(
     vehicleId: number,
     startDate: Date,
     endDate: Date,
+    currency: 'TND' | 'USD' | 'EUR' = 'TND',
   ): Promise<number> {
     const vehicle = await this.findOne(vehicleId);
     const pricings = await this.findPricings(vehicleId);
@@ -132,16 +132,24 @@ export class VehicleService {
     const end = new Date(endDate);
 
     while (current <= end) {
-      // cherche une règle de prix pour ce jour
       const rule = pricings.find(
         (p) =>
           new Date(p.startDate) <= current && new Date(p.endDate) >= current,
       );
 
-      // applique le prix de la règle ou le prix de base
-      totalPrice += rule
-        ? Number(rule.pricePerDay)
-        : Number(vehicle.basePricePerDay);
+      if (currency === 'TND') {
+        totalPrice += rule
+          ? Number(rule.pricePerDayTND)
+          : Number(vehicle.basePricePerDayTND);
+      } else if (currency === 'USD') {
+        totalPrice += rule
+          ? Number(rule.pricePerDayUSD)
+          : Number(vehicle.basePricePerDayUSD);
+      } else {
+        totalPrice += rule
+          ? Number(rule.pricePerDayEUR)
+          : Number(vehicle.basePricePerDayEUR);
+      }
 
       current.setDate(current.getDate() + 1);
     }

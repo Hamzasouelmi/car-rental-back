@@ -19,8 +19,8 @@ POST http://localhost:8080/auth/login
 Content-Type: application/json
 
 {
-  "email": "souleima@gmail.com",
-  "password": "Password@123"
+  "email": "user@gmail.com",
+  "password": "123456"
 }
 
 ###
@@ -140,7 +140,7 @@ Authorization: Bearer REPLACE_WITH_ADMIN_JWT_TOKEN
 ### ─── LOGIN ADMIN (récupère le token) ──────────────────────────────────────
 
 ### LOGIN ADMIN
-POST {{baseUrl}}/auth/login
+POST http://localhost:8080/auth/login
 Content-Type: application/json
 
 {
@@ -156,25 +156,27 @@ GET {{baseUrl}}/vehicles
 ###
 
 ### GET VEHICLE BY ID
-GET {{baseUrl}}/vehicles/1
+GET http://localhost:8080/vehicles/1
 
 ### ─── VEHICLE ADMIN ──────────────────────────────────────────────────────────
 
 ### GET ALL VEHICLES (admin)
 GET http://localhost:8080/vehicles/admin/all
-Authorization: Bearer {{adminToken}}
-
+Authorization: Bearer  eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjEsImlhdCI6MTc3Mzc5MjM0NiwiZXhwIjoxNzczNzk1OTQ2fQ.EclY3HwPLL4T_Y8P6U8ZYR0Bg51uXRKY1SAoDniSDhg
 ###
 
 ### CREATE VEHICLE
 POST http://localhost:8080/vehicles
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjEsImlhdCI6MTc3MzkyODgzNSwiZXhwIjoxNzczOTMyNDM1fQ.qLI9aIs4RKEZjlXJgg5gmHwVNrSLHvC0OyUOajbG2uw
 Content-Type: application/json
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjEsImlhdCI6MTc3Mzc5MDI2NiwiZXhwIjoxNzczNzkwMjY5fQ.2epS5Q7BZSipXG4PDmKKkCRSqlcII4Rz5ufKm79K38E
+
 {
   "brand": "Toyota",
   "model": "Corolla",
   "year": 2022,
-  "basePricePerDay": 50,
+  "basePricePerDayTND": 150,
+  "basePricePerDayUSD": 45,
+  "basePricePerDayEUR": 42,
   "seats": 5,
   "transmission": "manual",
   "fuelType": "petrol",
@@ -189,37 +191,43 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjEsImlhd
 ### UPDATE VEHICLE
 PATCH {{baseUrl}}/vehicles/1
 Content-Type: application/json
-Authorization: Bearer {{adminToken}}
+Authorization: Bearer  eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjEsImlhdCI6MTc3Mzc5MjM0NiwiZXhwIjoxNzczNzk1OTQ2fQ.EclY3HwPLL4T_Y8P6U8ZYR0Bg51uXRKY1SAoDniSDhg
 
 {
   "basePricePerDay": 60,
-  "mileage": 16000
+  "mileage": 0
 }
 
 ###
 
 ### TOGGLE AVAILABLE
 PATCH {{baseUrl}}/vehicles/1/toggle-available
-Authorization: Bearer {{adminToken}}
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjEsImlhdCI6MTc3Mzc5MjM0NiwiZXhwIjoxNzczNzk1OTQ2fQ.EclY3HwPLL4T_Y8P6U8ZYR0Bg51uXRKY1SAoDniSDhg
+
+
 
 ###
 
 ### DELETE VEHICLE
 DELETE {{baseUrl}}/vehicles/1
-Authorization: Bearer {{adminToken}}
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjEsImlhdCI6MTc3Mzc5MjM0NiwiZXhwIjoxNzczNzk1OTQ2fQ.EclY3HwPLL4T_Y8P6U8ZYR0Bg51uXRKY1SAoDniSDhg
+
+
 
 ### ─── VEHICLE PRICING ─────────────────────────────────────────────────────────
 
 ### GET ALL PRICINGS
 GET {{baseUrl}}/vehicles/1/pricing
-Authorization: Bearer {{adminToken}}
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjEsImlhdCI6MTc3Mzc5MjM0NiwiZXhwIjoxNzczNzk1OTQ2fQ.EclY3HwPLL4T_Y8P6U8ZYR0Bg51uXRKY1SAoDniSDhg
+
+
 
 ###
 
 ### CREATE PRICING RULE
 POST {{baseUrl}}/vehicles/1/pricing
 Content-Type: application/json
-Authorization: Bearer {{adminToken}}
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjEsImlhdCI6MTc3Mzc5MjM0NiwiZXhwIjoxNzczNzk1OTQ2fQ.EclY3HwPLL4T_Y8P6U8ZYR0Bg51uXRKY1SAoDniSDhg
 
 {
   "label": "Vacances été 2026",
@@ -233,7 +241,7 @@ Authorization: Bearer {{adminToken}}
 ### UPDATE PRICING RULE
 PATCH {{baseUrl}}/vehicles/1/pricing/1
 Content-Type: application/json
-Authorization: Bearer {{adminToken}}
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjEsImlhdCI6MTc3Mzc5MjM0NiwiZXhwIjoxNzczNzk1OTQ2fQ.EclY3HwPLL4T_Y8P6U8ZYR0Bg51uXRKY1SAoDniSDhg
 
 {
   "pricePerDay": 90
@@ -243,4 +251,108 @@ Authorization: Bearer {{adminToken}}
 
 ### DELETE PRICING RULE
 DELETE {{baseUrl}}/vehicles/1/pricing/1
+Authorization: Bearer {{adminToken}}
+
+### CALCULATE PRICE
+GET http://localhost:8080/vehicles/1/calculate-price?startDate=2026-08-31&endDate=2026-09-02
+
+### ─── VARIABLES ─────────────────────────────────────────────────────────────
+@baseUrl = http://localhost:8080
+@adminToken = REPLACE_WITH_ADMIN_JWT_TOKEN
+
+### ─── LOGIN ADMIN ───────────────────────────────────────────────────────────
+
+### LOGIN ADMIN
+POST {{baseUrl}}/auth/login
+Content-Type: application/json
+
+{
+  "email": "user@gmail.com",
+  "password": "123456"
+}
+
+### ─── PUBLIC ─────────────────────────────────────────────────────────────────
+
+### CHECK AVAILABILITY
+GET {{baseUrl}}/reservations/check-availability?vehicleId=1&startDate=2026-07-28&endDate=2026-08-02
+
+###
+
+### CREATE RESERVATION
+POST {{baseUrl}}/reservations
+Content-Type: application/json
+
+{
+  "vehicleId": 1,
+  "startDate": "2026-07-28",
+  "endDate": "2026-08-02",
+  "guestFirstName": "John",
+  "guestLastName": "Doe",
+  "guestEmail": "john.doe@gmail.com",
+  "guestPhone": "0612345678",
+  "notes": "Je souhaite récupérer le véhicule à l'aéroport"
+}
+
+### ─── ADMIN ──────────────────────────────────────────────────────────────────
+
+### GET ALL RESERVATIONS
+GET {{baseUrl}}/reservations
+Authorization: Bearer {{adminToken}}
+
+###
+
+### GET RESERVATION BY ID
+GET {{baseUrl}}/reservations/1
+Authorization: Bearer {{adminToken}}
+
+###
+
+### UPDATE RESERVATION
+PATCH {{baseUrl}}/reservations/1
+Content-Type: application/json
+Authorization: Bearer {{adminToken}}
+
+{
+  "guestFirstName": "Jane",
+  "guestPhone": "0698765432",
+  "notes": "Récupération à l'hôtel"
+}
+
+###
+
+### UPDATE RESERVATION STATUS
+PATCH {{baseUrl}}/reservations/1/status
+Content-Type: application/json
+Authorization: Bearer {{adminToken}}
+
+{
+  "status": "confirmed"
+}
+
+###
+
+### UPDATE RESERVATION STATUS - CANCELLED
+PATCH {{baseUrl}}/reservations/1/status
+Content-Type: application/json
+Authorization: Bearer {{adminToken}}
+
+{
+  "status": "cancelled"
+}
+
+###
+
+### UPDATE RESERVATION STATUS - COMPLETED
+PATCH {{baseUrl}}/reservations/1/status
+Content-Type: application/json
+Authorization: Bearer {{adminToken}}
+
+{
+  "status": "completed"
+}
+
+###
+
+### DELETE RESERVATION
+DELETE {{baseUrl}}/reservations/1
 Authorization: Bearer {{adminToken}}

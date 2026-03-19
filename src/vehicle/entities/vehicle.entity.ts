@@ -42,8 +42,15 @@ export class Vehicle {
   @Column({ type: 'int' })
   year: number;
 
+  // ─── PRIX ────────────────────────────────────────────────────────────────────
   @Column({ type: 'decimal', precision: 10, scale: 2 })
-  basePricePerDay: number;
+  basePricePerDayTND: number;
+
+  @Column({ type: 'decimal', precision: 10, scale: 2 })
+  basePricePerDayUSD: number;
+
+  @Column({ type: 'decimal', precision: 10, scale: 2 })
+  basePricePerDayEUR: number;
 
   @Column({ type: 'int' })
   seats: number;
