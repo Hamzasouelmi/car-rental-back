@@ -103,7 +103,7 @@ export class ReservationService {
     const savedWithRelations = await this.findOne(saved.id);
 
     // 6. envoyer email de confirmation
-    await this.emailAuthService.sendReservationConfirmation(
+    await this.emailAuthService.sendReservationCreated(
       dto.guestEmail,
       savedWithRelations,
     );
