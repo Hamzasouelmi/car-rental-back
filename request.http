@@ -283,9 +283,9 @@ POST {{baseUrl}}/reservations
 Content-Type: application/json
 
 {
-  "vehicleId": 1,
-  "startDate": "2026-07-28",
-  "endDate": "2026-08-02",
+  "vehicleId": 3,
+  "startDate": "2026-06-28",
+  "endDate": "2026-07-02",
   "guestFirstName": "John",
   "guestLastName": "Doe",
   "guestEmail": "john.doe@gmail.com",
@@ -297,25 +297,24 @@ Content-Type: application/json
 
 ### GET ALL RESERVATIONS
 GET {{baseUrl}}/reservations
-Authorization: Bearer {{adminToken}}
-
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjEsImlhdCI6MTc3MzkzMzg5OSwiZXhwIjoxNzczOTM3NDk5fQ.KOYgcJEi83GGXpBRZveqZ0Gg80_lONDIHg2uCK84rh4
 ###
 
 ### GET RESERVATION BY ID
 GET {{baseUrl}}/reservations/1
-Authorization: Bearer {{adminToken}}
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjEsImlhdCI6MTc3MzkzMzg5OSwiZXhwIjoxNzczOTM3NDk5fQ.KOYgcJEi83GGXpBRZveqZ0Gg80_lONDIHg2uCK84rh4
 
 ###
 
 ### UPDATE RESERVATION
 PATCH {{baseUrl}}/reservations/1
 Content-Type: application/json
-Authorization: Bearer {{adminToken}}
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjEsImlhdCI6MTc3MzkzMzg5OSwiZXhwIjoxNzczOTM3NDk5fQ.KOYgcJEi83GGXpBRZveqZ0Gg80_lONDIHg2uCK84rh4
 
 {
   "guestFirstName": "Jane",
   "guestPhone": "0698765432",
-  "notes": "Récupération à l'hôtel"
+  "notes": "Récupération à la maison"
 }
 
 ###
@@ -323,7 +322,7 @@ Authorization: Bearer {{adminToken}}
 ### UPDATE RESERVATION STATUS
 PATCH {{baseUrl}}/reservations/1/status
 Content-Type: application/json
-Authorization: Bearer {{adminToken}}
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjEsImlhdCI6MTc3MzkzMzg5OSwiZXhwIjoxNzczOTM3NDk5fQ.KOYgcJEi83GGXpBRZveqZ0Gg80_lONDIHg2uCK84rh4
 
 {
   "status": "confirmed"
@@ -334,7 +333,7 @@ Authorization: Bearer {{adminToken}}
 ### UPDATE RESERVATION STATUS - CANCELLED
 PATCH {{baseUrl}}/reservations/1/status
 Content-Type: application/json
-Authorization: Bearer {{adminToken}}
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjEsImlhdCI6MTc3MzkzMzg5OSwiZXhwIjoxNzczOTM3NDk5fQ.KOYgcJEi83GGXpBRZveqZ0Gg80_lONDIHg2uCK84rh4
 
 {
   "status": "cancelled"
@@ -345,7 +344,7 @@ Authorization: Bearer {{adminToken}}
 ### UPDATE RESERVATION STATUS - COMPLETED
 PATCH {{baseUrl}}/reservations/1/status
 Content-Type: application/json
-Authorization: Bearer {{adminToken}}
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjEsImlhdCI6MTc3MzkzMzg5OSwiZXhwIjoxNzczOTM3NDk5fQ.KOYgcJEi83GGXpBRZveqZ0Gg80_lONDIHg2uCK84rh4
 
 {
   "status": "completed"
@@ -355,4 +354,63 @@ Authorization: Bearer {{adminToken}}
 
 ### DELETE RESERVATION
 DELETE {{baseUrl}}/reservations/1
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjEsImlhdCI6MTc3MzkzMzg5OSwiZXhwIjoxNzczOTM3NDk5fQ.KOYgcJEi83GGXpBRZveqZ0Gg80_lONDIHg2uCK84rh4
+
+
+### ─── VARIABLES ─────────────────────────────────────────────────────────────
+@baseUrl = http://localhost:8080
+@adminToken = REPLACE_WITH_ADMIN_JWT_TOKEN
+
+### ─── LOGIN ADMIN ───────────────────────────────────────────────────────────
+
+### LOGIN ADMIN
+POST {{baseUrl}}/auth/login
+Content-Type: application/json
+
+{
+  "email": "user@gmail.com",
+  "password": "123456"
+}
+
+### ─── PUBLIC ─────────────────────────────────────────────────────────────────
+
+### INITIATE PAYMENT
+POST {{baseUrl}}/payments/initiate
+Content-Type: application/json
+
+{
+  "reservationId": 1
+}
+
+###
+
+### WEBHOOK (simuler Konnect)
+GET {{baseUrl}}/payments/webhook?payment_ref=REPLACE_WITH_PAYMENT_REF
+
+###
+
+### PAYMENT SUCCESS
+GET {{baseUrl}}/payments/success?payment_ref=REPLACE_WITH_PAYMENT_REF
+
+###
+
+### PAYMENT FAIL
+GET {{baseUrl}}/payments/fail?payment_ref=REPLACE_WITH_PAYMENT_REF
+
+### ─── ADMIN ──────────────────────────────────────────────────────────────────
+
+### GET ALL PAYMENTS
+GET {{baseUrl}}/payments
+Authorization: Bearer {{adminToken}}
+
+###
+
+### GET PAYMENT BY ID
+GET {{baseUrl}}/payments/1
+Authorization: Bearer {{adminToken}}
+
+###
+
+### GET PAYMENTS BY RESERVATION
+GET {{baseUrl}}/payments/reservation/1
 Authorization: Bearer {{adminToken}}
