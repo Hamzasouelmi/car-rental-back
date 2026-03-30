@@ -284,8 +284,8 @@ Content-Type: application/json
 
 {
   "vehicleId": 3,
-  "startDate": "2026-06-28",
-  "endDate": "2026-07-02",
+  "startDate": "2026-04-28",
+  "endDate": "2026-05-02",
   "guestFirstName": "John",
   "guestLastName": "Doe",
   "guestEmail": "john.doe@gmail.com",
@@ -379,16 +379,16 @@ POST {{baseUrl}}/payments/initiate
 Content-Type: application/json
 
 {
-  "reservationId": 1
+  "reservationId": 6
 }
 
 ###
 
 ### WEBHOOK (simuler Konnect)
-GET {{baseUrl}}/payments/webhook?payment_ref=REPLACE_WITH_PAYMENT_REF
+GET {{baseUrl}}/payments/webhook?payment_ref=69bc9f1ecd2bd9f6ada9b8e2
 
-###
-
+### test uniquement en developpement pour lewebhook
+GET http://localhost:8080/payments/webhook/test/69c6adc3cd2bd9f6adaea3da
 ### PAYMENT SUCCESS
 GET {{baseUrl}}/payments/success?payment_ref=REPLACE_WITH_PAYMENT_REF
 
@@ -401,16 +401,92 @@ GET {{baseUrl}}/payments/fail?payment_ref=REPLACE_WITH_PAYMENT_REF
 
 ### GET ALL PAYMENTS
 GET {{baseUrl}}/payments
-Authorization: Bearer {{adminToken}}
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjEsImlhdCI6MTc3Mzk3MDQ2MywiZXhwIjoxNzczOTc0MDYzfQ.Qgw6S8_tfKh1c79vJUwbhH1QgqUJP7_CkjnjMkUB_LY
 
 ###
 
 ### GET PAYMENT BY ID
 GET {{baseUrl}}/payments/1
-Authorization: Bearer {{adminToken}}
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjEsImlhdCI6MTc3Mzk3MDQ2MywiZXhwIjoxNzczOTc0MDYzfQ.Qgw6S8_tfKh1c79vJUwbhH1QgqUJP7_CkjnjMkUB_LY
 
 ###
 
 ### GET PAYMENTS BY RESERVATION
-GET {{baseUrl}}/payments/reservation/1
+GET {{baseUrl}}/payments/reservation/3
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjEsImlhdCI6MTc3Mzk3MDQ2MywiZXhwIjoxNzczOTc0MDYzfQ.Qgw6S8_tfKh1c79vJUwbhH1QgqUJP7_CkjnjMkUB_LY
+
+### CREATE BULK PRICING — tous les véhicules
+POST http://localhost:8080/vehicles/pricing/bulk
+Content-Type: application/json
 Authorization: Bearer {{adminToken}}
+
+{
+  "label": "Vacances été 2026",
+  "startDate": "2026-07-01",
+  "endDate": "2026-08-31",
+  "pricePerDayTND": 200,
+  "pricePerDayUSD": 60,
+  "pricePerDayEUR": 55
+}
+
+###
+
+### CREATE BULK PRICING — véhicules spécifiques
+POST http://localhost:8080/vehicles/pricing/bulk
+Content-Type: application/json
+Authorization: Bearer {{adminToken}}
+
+{
+  "label": "Promo SUV été 2026",
+  "startDate": "2026-07-01",
+  "endDate": "2026-08-31",
+  "pricePerDayTND": 350,
+  "pricePerDayUSD": 105,
+  "pricePerDayEUR": 95,
+  "vehicleIds": [1, 2, 3]
+}
+
+###
+
+### UPDATE BULK PRICING — tous les véhicules
+PATCH http://localhost:8080/vehicles/pricing/bulk
+Content-Type: application/json
+Authorization: Bearer {{adminToken}}
+
+{
+  "pricePerDayTND": 220,
+  "pricePerDayUSD": 65,
+  "pricePerDayEUR": 60
+}
+
+###
+
+### UPDATE BULK PRICING — véhicules spécifiques
+PATCH http://localhost:8080/vehicles/pricing/bulk
+Content-Type: application/json
+Authorization: Bearer {{adminToken}}
+
+{
+  "pricePerDayTND": 380,
+  "vehicleIds": [1, 2]
+}
+
+###
+
+### DELETE BULK PRICING — tous les véhicules
+DELETE http://localhost:8080/vehicles/pricing/bulk
+Content-Type: application/json
+Authorization: Bearer {{adminToken}}
+
+{}
+
+###
+
+### DELETE BULK PRICING — véhicules spécifiques
+DELETE http://localhost:8080/vehicles/pricing/bulk
+Content-Type: application/json
+Authorization: Bearer {{adminToken}}
+
+{
+  "vehicleIds": [1, 2, 3]
+}

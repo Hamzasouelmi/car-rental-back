@@ -19,6 +19,7 @@ import Role from 'src/auth/enum/role.enum';
 import { RoleGuard } from 'src/shared/common/guards/role.guard';
 import { UpdateVehiclePricingDto } from './dto/update-vehicle-pricing.dto';
 import { UpdateVehicleDto } from './dto/update-vehicle.dto';
+import { BulkPricingDto, UpdateBulkPricingDto } from './dto/bulk-pricing.dto';
 
 @Controller('vehicles')
 export class VehicleController {
@@ -31,13 +32,24 @@ export class VehicleController {
   findAll() {
     return this.vehicleService.findAll();
   }
+  @Get('/available')
+  @HttpCode(HttpStatus.OK)
+  findAllAvailable() {
+    return this.vehicleService.findAllAvailable();
+  }
 
   @Get(':id')
   @HttpCode(HttpStatus.OK)
   findOne(@Param('id', ParseIntPipe) id: number) {
     return this.vehicleService.findOne(id);
   }
-
+  @Get('availableList')
+  getAvailableVehicles(
+    @Query('startDate') startDate: string,
+    @Query('endDate') endDate: string,
+  ) {
+    return this.vehicleService.checkListVehicleAvailable(startDate, endDate);
+  }
   // ─── ADMIN ROUTES ────────────────────────────────────────────────────────────
 
   @Get('admin/all')
@@ -126,5 +138,25 @@ export class VehicleController {
       new Date(startDate),
       new Date(endDate),
     );
+  }
+  @Post('pricing/bulk')
+  @UseGuards(RoleGuard(Role.ADMIN))
+  @HttpCode(HttpStatus.CREATED)
+  createBulkPricing(@Body() dto: BulkPricingDto) {
+    return this.vehicleService.createBulkPricing(dto);
+  }
+
+  @Patch('pricing/bulk')
+  @UseGuards(RoleGuard(Role.ADMIN))
+  @HttpCode(HttpStatus.OK)
+  updateBulkPricing(@Body() dto: UpdateBulkPricingDto) {
+    return this.vehicleService.updateBulkPricing(dto);
+  }
+
+  @Delete('pricing/bulk')
+  @UseGuards(RoleGuard(Role.ADMIN))
+  @HttpCode(HttpStatus.OK)
+  deleteBulkPricing(@Body() body: { vehicleIds?: number[] }) {
+    return this.vehicleService.deleteBulkPricing(body.vehicleIds);
   }
 }

@@ -11,6 +11,8 @@ import { CreateVehicleDto } from './dto/create-vehicle.dto';
 import { CreateVehiclePricingDto } from './dto/create-vehicle-pricing.dto';
 import { UpdateVehicleDto } from './dto/update-vehicle.dto';
 import { UpdateVehiclePricingDto } from './dto/update-vehicle-pricing.dto';
+import { ReservationStatus } from 'src/reservation/reservation.entity';
+import { BulkPricingDto, UpdateBulkPricingDto } from './dto/bulk-pricing.dto';
 
 @Injectable()
 export class VehicleService {
@@ -24,6 +26,11 @@ export class VehicleService {
   // ─── VEHICLE CRUD ─────────────────────────────────────────────────────────────
 
   async findAll(): Promise<Vehicle[]> {
+    return this.vehicleRepository.find({
+      relations: ['pricings'],
+    });
+  }
+  async findAllAvailable(): Promise<Vehicle[]> {
     return this.vehicleRepository.find({
       where: { isAvailable: true },
       relations: ['pricings'],
@@ -131,7 +138,7 @@ export class VehicleService {
     const current = new Date(startDate);
     const end = new Date(endDate);
 
-    while (current <= end) {
+    while (current < end) {
       const rule = pricings.find(
         (p) =>
           new Date(p.startDate) <= current && new Date(p.endDate) >= current,
@@ -155,5 +162,184 @@ export class VehicleService {
     }
 
     return totalPrice;
+  }
+
+  async checkListVehicleAvailable(
+    startDate: string,
+    endDate: string,
+  ): Promise<any[]> {
+    if (!startDate || !endDate) {
+      throw new BadRequestException('startDate and endDate are required');
+    }
+
+    const start = new Date(startDate);
+    const end = new Date(endDate);
+
+    if (end < start) {
+      throw new BadRequestException('End date cannot be before start date');
+    }
+
+    // 🔹 1. récupérer véhicules dispo (sans conflit)
+    const vehicles = await this.vehicleRepository
+      .createQueryBuilder('vehicle')
+      .leftJoinAndSelect('vehicle.pricings', 'pricing')
+      .leftJoin(
+        'reservations',
+        'reservation',
+        `
+      reservation.vehicleId = vehicle.id
+      AND reservation.status NOT IN (:...statuses)
+      AND reservation.startDate <= :endDate
+      AND reservation.endDate >= :startDate
+      `,
+        {
+          startDate,
+          endDate,
+          statuses: [ReservationStatus.CANCELLED],
+        },
+      )
+      .where('vehicle.isAvailable = :isAvailable', { isAvailable: true })
+      .andWhere('reservation.id IS NULL')
+      .getMany();
+
+    // 🔹 2. calcul du prix dynamique
+    return vehicles.map((vehicle) => {
+      const days = Math.ceil(
+        (end.getTime() - start.getTime()) / (1000 * 60 * 60 * 24),
+      );
+
+      let totalTND = 0;
+      let totalUSD = 0;
+      let totalEUR = 0;
+
+      // 🔥 calcul jour par jour (ultra précis)
+      for (let d = new Date(start); d < end; d.setDate(d.getDate() + 1)) {
+        const currentDay = new Date(d);
+
+        const pricing = vehicle.pricings.find((p) => {
+          const pStart = new Date(p.startDate);
+          const pEnd = new Date(p.endDate);
+          return currentDay >= pStart && currentDay <= pEnd;
+        });
+
+        totalTND += pricing
+          ? Number(pricing.pricePerDayTND)
+          : Number(vehicle.basePricePerDayTND);
+
+        totalUSD += pricing
+          ? Number(pricing.pricePerDayUSD)
+          : Number(vehicle.basePricePerDayUSD);
+
+        totalEUR += pricing
+          ? Number(pricing.pricePerDayEUR)
+          : Number(vehicle.basePricePerDayEUR);
+      }
+
+      return {
+        ...vehicle,
+
+        // 🔹 prix par jour indicatif
+        pricePerDayTND: Math.round(totalTND / days),
+        pricePerDayUSD: Math.round(totalUSD / days),
+        pricePerDayEUR: Math.round(totalEUR / days),
+
+        // 🔹 prix total réel
+        totalPriceTND: totalTND,
+        totalPriceUSD: totalUSD,
+        totalPriceEUR: totalEUR,
+      };
+    });
+  }
+  // ─── BULK PRICING ─────────────────────────────────────────────────────────────
+
+  async createBulkPricing(dto: BulkPricingDto): Promise<VehiclePricing[]> {
+    if (new Date(dto.endDate) < new Date(dto.startDate)) {
+      throw new BadRequestException('End date cannot be before start date');
+    }
+
+    // Si vehicleIds fournis → pricing pour ces véhicules
+    // Sinon → pricing pour tous les véhicules
+    let vehicles: Vehicle[];
+
+    if (dto.vehicleIds && dto.vehicleIds.length > 0) {
+      vehicles = await this.vehicleRepository.findByIds(dto.vehicleIds);
+      if (vehicles.length !== dto.vehicleIds.length) {
+        throw new NotFoundException('Some vehicles not found');
+      }
+    } else {
+      vehicles = await this.vehicleRepository.find();
+    }
+
+    const pricings = vehicles.map((vehicle) =>
+      this.vehiclePricingRepository.create({
+        label: dto.label,
+        startDate: dto.startDate,
+        endDate: dto.endDate,
+        pricePerDayTND: dto.pricePerDayTND,
+        pricePerDayUSD: dto.pricePerDayUSD,
+        pricePerDayEUR: dto.pricePerDayEUR,
+        vehicleId: vehicle.id,
+      }),
+    );
+
+    return this.vehiclePricingRepository.save(pricings);
+  }
+
+  async updateBulkPricing(
+    dto: UpdateBulkPricingDto,
+  ): Promise<VehiclePricing[]> {
+    if (
+      dto.startDate &&
+      dto.endDate &&
+      new Date(dto.endDate) < new Date(dto.startDate)
+    ) {
+      throw new BadRequestException('End date cannot be before start date');
+    }
+
+    // Trouver les pricings à mettre à jour
+    let pricings: VehiclePricing[];
+
+    if (dto.vehicleIds && dto.vehicleIds.length > 0) {
+      pricings = await this.vehiclePricingRepository
+        .createQueryBuilder('pricing')
+        .where('pricing.vehicleId IN (:...vehicleIds)', {
+          vehicleIds: dto.vehicleIds,
+        })
+        .getMany();
+    } else {
+      pricings = await this.vehiclePricingRepository.find();
+    }
+
+    if (pricings.length === 0) {
+      throw new NotFoundException('No pricings found');
+    }
+
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const { vehicleIds: _, ...updateData } = dto;
+    const updatedPricings = pricings.map((pricing) =>
+      Object.assign(pricing, updateData),
+    );
+
+    return this.vehiclePricingRepository.save(updatedPricings);
+  }
+
+  async deleteBulkPricing(vehicleIds?: number[]): Promise<{ deleted: number }> {
+    let pricings: VehiclePricing[];
+
+    if (vehicleIds && vehicleIds.length > 0) {
+      pricings = await this.vehiclePricingRepository
+        .createQueryBuilder('pricing')
+        .where('pricing.vehicleId IN (:...vehicleIds)', { vehicleIds })
+        .getMany();
+    } else {
+      pricings = await this.vehiclePricingRepository.find();
+    }
+
+    if (pricings.length === 0) {
+      return { deleted: 0 };
+    }
+
+    await this.vehiclePricingRepository.remove(pricings);
+    return { deleted: pricings.length };
   }
 }
