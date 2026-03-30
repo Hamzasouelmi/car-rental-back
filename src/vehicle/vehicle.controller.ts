@@ -33,9 +33,11 @@ export class VehicleController {
     return this.vehicleService.findAll();
   }
   @Get('/available')
-  @HttpCode(HttpStatus.OK)
-  findAllAvailable() {
-    return this.vehicleService.findAllAvailable();
+  findAvailable(
+    @Query('startDate') startDate: string,
+    @Query('endDate') endDate: string,
+  ) {
+    return this.vehicleService.findAvailableVehicles(startDate, endDate);
   }
 
   @Get(':id')
