@@ -253,4 +253,22 @@ export class PaymentService {
 
     this.logger.log(`[TEST] Reservation #${payment.reservationId} confirmed`);
   }
+  async createAdminPaidPayment(reservation: Reservation) {
+    const existingPaid = await this.paymentRepository.findOne({
+      where: { reservationId: reservation.id, status: PaymentStatus.PAID },
+    });
+
+    if (!existingPaid) {
+      const payment = this.paymentRepository.create({
+        reservationId: reservation.id,
+        amountTND: reservation.totalPriceTND,
+        status: PaymentStatus.PAID,
+        paidAt: new Date(),
+      });
+      await this.paymentRepository.save(payment);
+      this.logger.log(
+        `Payment PAID created for reservation #${reservation.id}`,
+      );
+    }
+  }
 }

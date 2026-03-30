@@ -75,4 +75,6 @@ export class Reservation {
 
   @UpdateDateColumn()
   updatedAt: Date;
+  @Column({ type: 'timestamp', nullable: true })
+  expiresAt: Date | null;
 }

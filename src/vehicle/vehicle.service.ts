@@ -11,7 +11,10 @@ import { CreateVehicleDto } from './dto/create-vehicle.dto';
 import { CreateVehiclePricingDto } from './dto/create-vehicle-pricing.dto';
 import { UpdateVehicleDto } from './dto/update-vehicle.dto';
 import { UpdateVehiclePricingDto } from './dto/update-vehicle-pricing.dto';
-import { ReservationStatus } from 'src/reservation/reservation.entity';
+import {
+  Reservation,
+  ReservationStatus,
+} from 'src/reservation/reservation.entity';
 import { BulkPricingDto, UpdateBulkPricingDto } from './dto/bulk-pricing.dto';
 
 @Injectable()
@@ -21,6 +24,8 @@ export class VehicleService {
     private readonly vehicleRepository: Repository<Vehicle>,
     @InjectRepository(VehiclePricing)
     private readonly vehiclePricingRepository: Repository<VehiclePricing>,
+    @InjectRepository(Reservation)
+    private readonly reservationRepository: Repository<Reservation>,
   ) {}
 
   // ─── VEHICLE CRUD ─────────────────────────────────────────────────────────────
@@ -30,11 +35,49 @@ export class VehicleService {
       relations: ['pricings'],
     });
   }
-  async findAllAvailable(): Promise<Vehicle[]> {
-    return this.vehicleRepository.find({
+  async findAvailableVehicles(
+    startDate: string,
+    endDate: string,
+  ): Promise<Vehicle[]> {
+    const start = new Date(startDate);
+    const end = new Date(endDate);
+
+    if (end < start) {
+      throw new BadRequestException('End date must be after start date');
+    }
+
+    const vehicles = await this.vehicleRepository.find({
       where: { isAvailable: true },
       relations: ['pricings'],
     });
+
+    const availableVehicles: Vehicle[] = [];
+
+    for (const vehicle of vehicles) {
+      const existingReservation = await this.reservationRepository
+        .createQueryBuilder('reservation')
+        .where('reservation.vehicleId = :vehicleId', {
+          vehicleId: vehicle.id,
+        })
+        .andWhere('reservation.status IN (:...statuses)', {
+          statuses: [ReservationStatus.CONFIRMED, ReservationStatus.PENDING],
+        })
+        .andWhere(
+          '(reservation.expiresAt IS NULL OR reservation.expiresAt > :now)',
+          { now: new Date() },
+        )
+        .andWhere(
+          'reservation.startDate <= :endDate AND reservation.endDate >= :startDate',
+          { startDate: start, endDate: end },
+        )
+        .getOne();
+
+      if (!existingReservation) {
+        availableVehicles.push(vehicle);
+      }
+    }
+
+    return availableVehicles;
   }
 
   async findAllAdmin(): Promise<Vehicle[]> {

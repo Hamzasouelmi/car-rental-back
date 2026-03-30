@@ -8,6 +8,7 @@ import { EmailModule } from '../email/email.module';
 import { JwtTokenModule } from '../shared/common/jwt-tokens/jwt-token.module';
 import { UserModule } from '../users/user/user.module';
 import { Reservation } from './reservation.entity';
+import { PaymentModule } from 'src/payment/payment.module';
 
 @Module({
   imports: [
@@ -16,6 +17,7 @@ import { Reservation } from './reservation.entity';
     EmailModule,
     JwtTokenModule,
     UserModule,
+    PaymentModule,
   ],
   controllers: [ReservationController],
   providers: [ReservationService, EmailAuthService],

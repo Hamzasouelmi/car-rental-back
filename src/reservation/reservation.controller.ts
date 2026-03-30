@@ -20,6 +20,7 @@ import { UpdateReservationDto } from './dto/update-reservation.dto';
 import { UpdateReservationStatusDto } from './dto/update-reservation-status.dto';
 import Role from '../auth/enum/role.enum';
 import { RoleGuard } from 'src/shared/common/guards/role.guard';
+import { Reservation, ReservationStatus } from './reservation.entity';
 
 @Controller('reservations')
 export class ReservationController {
@@ -49,7 +50,14 @@ export class ReservationController {
   }
 
   // ─── ADMIN ROUTES ────────────────────────────────────────────────────────────
-
+  @Post('adminCreate')
+  @UseGuards(RoleGuard(Role.ADMIN))
+  @HttpCode(HttpStatus.CREATED)
+  async createReservationByAdmin(
+    @Body() dto: CreateReservationDto & { status?: ReservationStatus },
+  ): Promise<Reservation> {
+    return this.reservationService.createReservationByAdmin(dto);
+  }
   @Get()
   @UseGuards(RoleGuard(Role.ADMIN))
   @HttpCode(HttpStatus.OK)
